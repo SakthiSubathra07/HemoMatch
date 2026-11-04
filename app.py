@@ -1,4 +1,4 @@
-﻿"""
+"""
 app.py - Flask Application for HemoMatch
 Connects compatibility.py (blood group logic) with database.db (SQLite records)
 and renders index.html (main webpage) and history.html (previous check records).
@@ -182,5 +182,5 @@ def clear_history_action():
 
 
 if __name__ == "__main__":
-    print("Starting HemoMatch server on http://127.0.0.1:5000")
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
