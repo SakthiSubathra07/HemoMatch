@@ -1,0 +1,287 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HemoMatch - Blood Compatibility Checker</title>
+  <!-- Link external stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="../static/style.css">
+  <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="container">
+    <!-- Top Navigation Bar to history.html -->
+    <div class="top-nav">
+      <a href="/history" class="btn-history-nav" title="View all previous compatibility check records">
+        <svg class="icon-nav" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .2.08.39.22.53l3 3a.75.75 0 001.06-1.06l-2.78-2.78V5z" clip-rule="evenodd"/>
+        </svg>
+        View History (<span id="navHistoryCount">{{ history|length if history else 0 }}</span>)
+      </a>
+    </div>
+
+    <!-- 1. HemoMatch Title & Logo -->
+    <header class="header">
+      <div class="logo-container">
+        <!-- Medical Blood Droplet with Plus Sign Logo -->
+        <svg class="logo-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+          <path d="M12 9v6M9 12h6" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1 class="title">HemoMatch</h1>
+      <p class="subtitle">Blood Compatibility Checker</p>
+    </header>
+
+    <!-- Compatibility Form -->
+    <form id="compatibilityForm" method="POST" action="/" onsubmit="handleSubmit(event);">
+      <!-- 2. Donor Blood Group Dropdown -->
+      <div class="form-group">
+        <label for="donorBlood">Donor Blood Group</label>
+        <div class="select-wrapper">
+          <select id="donorBlood" name="donorBlood" required>
+            <option value="" disabled {% if not donor %}selected{% endif %}>Select Donor Blood Group</option>
+            <option value="O-" {% if donor == 'O-' %}selected{% endif %}>O- (Universal Red Blood Cell Donor)</option>
+            <option value="O+" {% if donor == 'O+' %}selected{% endif %}>O+</option>
+            <option value="A-" {% if donor == 'A-' %}selected{% endif %}>A-</option>
+            <option value="A+" {% if donor == 'A+' %}selected{% endif %}>A+</option>
+            <option value="B-" {% if donor == 'B-' %}selected{% endif %}>B-</option>
+            <option value="B+" {% if donor == 'B+' %}selected{% endif %}>B+</option>
+            <option value="AB-" {% if donor == 'AB-' %}selected{% endif %}>AB-</option>
+            <option value="AB+" {% if donor == 'AB+' %}selected{% endif %}>AB+</option>
+          </select>
+          <svg class="select-arrow" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 3. Recipient Blood Group Dropdown -->
+      <div class="form-group">
+        <label for="recipientBlood">Recipient Blood Group</label>
+        <div class="select-wrapper">
+          <select id="recipientBlood" name="recipientBlood" required>
+            <option value="" disabled {% if not recipient %}selected{% endif %}>Select Recipient Blood Group</option>
+            <option value="O-" {% if recipient == 'O-' %}selected{% endif %}>O-</option>
+            <option value="O+" {% if recipient == 'O+' %}selected{% endif %}>O+</option>
+            <option value="A-" {% if recipient == 'A-' %}selected{% endif %}>A-</option>
+            <option value="A+" {% if recipient == 'A+' %}selected{% endif %}>A+</option>
+            <option value="B-" {% if recipient == 'B-' %}selected{% endif %}>B-</option>
+            <option value="B+" {% if recipient == 'B+' %}selected{% endif %}>B+</option>
+            <option value="AB-" {% if recipient == 'AB-' %}selected{% endif %}>AB-</option>
+            <option value="AB+" {% if recipient == 'AB+' %}selected{% endif %}>AB+ (Universal Recipient)</option>
+          </select>
+          <svg class="select-arrow" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 4. Check Compatibility Button -->
+      <button type="submit" id="checkBtn" class="btn-check">Check Compatibility</button>
+    </form>
+
+    <!-- 5. Result Display Area -->
+    <div id="resultArea" class="result-area {% if result %}{{ result.status }}{% endif %}" {% if result %}style="display: block;"{% endif %} role="alert" aria-live="polite">
+      <div class="result-header">
+        <span id="resultIcon">
+          {% if result and result.status == 'compatible' %}
+          <svg class="result-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+          </svg>
+          {% elif result and result.status == 'incompatible' %}
+          <svg class="result-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+          </svg>
+          {% elif result and result.status == 'warning' %}
+          ⚠️
+          {% endif %}
+        </span>
+        <span id="resultTitle">{% if result %}{{ result.title }}{% endif %}</span>
+      </div>
+      <p id="resultDetails" class="result-details">{% if result %}{{ result.message }}{% endif %}</p>
+    </div>
+
+    <!-- Recent Records Section with link to history.html -->
+    <section class="history-section" aria-labelledby="recentChecksTitle">
+      <div class="history-header">
+        <div class="history-title-group">
+          <h2 id="recentChecksTitle" class="history-title">Recent Checks</h2>
+          <span id="historyCount" class="history-count">{{ history|length if history else 0 }}</span>
+        </div>
+        <a href="/history" class="btn-view-all">View All in History →</a>
+      </div>
+
+      <div id="historyTableContainer">
+        {% if history and history|length > 0 %}
+        <div class="history-table-wrapper">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Donor</th>
+                <th>Recipient</th>
+                <th>Result</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              {% for row in history[:5] %}
+              <tr>
+                <td><span class="badge-blood">{{ row.donor }}</span></td>
+                <td><span class="badge-blood">{{ row.recipient }}</span></td>
+                <td>
+                  <span class="badge-status {{ row.status }}">
+                    {{ row.result }}
+                  </span>
+                </td>
+                <td class="history-time">{{ row.timestamp }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div id="historyEmpty" class="history-empty">
+          No previous checks found. Choose blood groups above and click <strong>Check Compatibility</strong> to record history.
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <div class="footer-note">
+      Informational screening only. Clinical blood typing & cross-matching must be performed prior to transfusion.
+    </div>
+  </main>
+
+  <script>
+    async function handleSubmit(event) {
+      event.preventDefault();
+
+      const donor = document.getElementById('donorBlood').value;
+      const recipient = document.getElementById('recipientBlood').value;
+
+      if (!donor || !recipient) {
+        displayResult({
+          status: 'warning',
+          title: 'Selection Incomplete',
+          message: 'Please choose both a donor and a recipient blood group.',
+          icon: '⚠️'
+        });
+        return;
+      }
+
+      try {
+        const response = await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ donorBlood: donor, recipientBlood: recipient })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          displayResult(result);
+          if (result.history) {
+            updateHistoryUI(result.history);
+          }
+          return;
+        }
+      } catch (err) {
+        console.warn('Backend fetch failed, submitting native form:', err);
+      }
+
+      event.target.submit();
+    }
+
+    function displayResult(result) {
+      const resultArea = document.getElementById('resultArea');
+      const resultTitle = document.getElementById('resultTitle');
+      const resultDetails = document.getElementById('resultDetails');
+      const resultIcon = document.getElementById('resultIcon');
+
+      resultArea.className = 'result-area ' + (result.status || 'warning');
+      resultTitle.textContent = result.title;
+      resultDetails.textContent = result.message;
+
+      if (result.status === 'compatible') {
+        resultIcon.innerHTML = `
+          <svg class="result-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+          </svg>
+        `;
+      } else if (result.status === 'incompatible') {
+        resultIcon.innerHTML = `
+          <svg class="result-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+          </svg>
+        `;
+      } else {
+        resultIcon.innerHTML = result.icon || '⚠️';
+      }
+
+      resultArea.style.display = 'block';
+    }
+
+    function updateHistoryUI(historyList) {
+      const countBadge = document.getElementById('historyCount');
+      const navCountBadge = document.getElementById('navHistoryCount');
+      const container = document.getElementById('historyTableContainer');
+
+      if (countBadge) countBadge.textContent = historyList.length;
+      if (navCountBadge) navCountBadge.textContent = historyList.length;
+
+      if (!historyList || historyList.length === 0) {
+        container.innerHTML = `
+          <div id="historyEmpty" class="history-empty">
+            No previous checks found. Choose blood groups above and click <strong>Check Compatibility</strong> to record history.
+          </div>
+        `;
+        return;
+      }
+
+      let rowsHtml = '';
+      historyList.slice(0, 5).forEach(row => {
+        rowsHtml += `
+          <tr>
+            <td><span class="badge-blood">${escapeHtml(row.donor)}</span></td>
+            <td><span class="badge-blood">${escapeHtml(row.recipient)}</span></td>
+            <td>
+              <span class="badge-status ${escapeHtml(row.status)}">
+                ${escapeHtml(row.result)}
+              </span>
+            </td>
+            <td class="history-time">${escapeHtml(row.timestamp)}</td>
+          </tr>
+        `;
+      });
+
+      container.innerHTML = `
+        <div class="history-table-wrapper">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Donor</th>
+                <th>Recipient</th>
+                <th>Result</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

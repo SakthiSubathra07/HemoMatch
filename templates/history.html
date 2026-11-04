@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HemoMatch - Previous Check Records</title>
+  <!-- Link external stylesheets -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="../static/style.css">
+  <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="container history-page-container">
+    <!-- Header with HemoMatch Logo & Title -->
+    <header class="header">
+      <div class="logo-container">
+        <!-- Medical Blood Droplet with Plus Sign Logo -->
+        <svg class="logo-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+          <path d="M12 9v6M9 12h6" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1 class="title">HemoMatch</h1>
+      <p class="subtitle">Previous Compatibility Records</p>
+    </header>
+
+    <!-- Top Navigation Bar -->
+    <nav class="nav-bar">
+      <a href="/" class="btn-nav">
+        <svg class="icon-nav" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd"/>
+        </svg>
+        Back to Checker
+      </a>
+
+      {% if history and history|length > 0 %}
+      <form action="/clear-history" method="POST" onsubmit="return confirm('Are you sure you want to clear all history records?');" style="margin: 0;">
+        <button type="submit" class="btn-clear-history">Clear All Records</button>
+      </form>
+      {% endif %}
+    </nav>
+
+    <!-- History Summary Header -->
+    <div class="history-card-header">
+      <span class="history-card-title">Stored Checks</span>
+      <span class="history-count-badge">{{ history|length if history else 0 }} total checks</span>
+    </div>
+
+    <!-- Table of Previous Records -->
+    <div class="history-table-container">
+      {% if history and history|length > 0 %}
+      <div class="history-table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Donor</th>
+              <th>Recipient</th>
+              <th>Result</th>
+              <th>Checked At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in history %}
+            <tr>
+              <td class="history-id">{{ loop.index }}</td>
+              <td><span class="badge-blood">{{ row.donor }}</span></td>
+              <td><span class="badge-blood">{{ row.recipient }}</span></td>
+              <td>
+                <span class="badge-status {{ row.status }}">
+                  {{ row.result }}
+                </span>
+              </td>
+              <td class="history-time">{{ row.timestamp }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="history-empty">
+        <p>No previous check records found in the database.</p>
+        <a href="/" class="btn-check" style="display: inline-block; width: auto; padding: 10px 24px; margin-top: 14px; text-decoration: none;">
+          Check Blood Compatibility
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="footer-note">
+      Records are securely stored in <strong>database.db</strong>. Cross-matching must always precede actual transfusions.
+    </div>
+  </main>
+
+</body>
+</html>
