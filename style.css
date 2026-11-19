@@ -498,3 +498,26 @@ select:focus {
   justify-content: space-between;
   margin-bottom: 12px;
 }
+/* Dark Mode Theme */
+[data-theme="dark"] {
+    --bg: #0F172A;
+    --card: #1E293B;
+    --primary: #2DD4BF;
+    --primary-hover: #14B8A6;
+    --accent: #FB7185;
+    --text: #F1F5F9;
+    --muted: #94A3B8;
+    --border: #334155;
+    --ok-bg: #14532D;
+    --bad-bg: #7F1D1D;
+    --ok: #4ADE80;
+    --bad: #F87171;
+}
+
+[data-theme="dark"] select {
+    color-scheme: dark;
+}
+
+[data-theme="dark"] .history-table th {
+    background: var(--card);
+}
