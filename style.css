@@ -498,3 +498,17 @@ select:focus {
   justify-content: space-between;
   margin-bottom: 12px;
 }
+
+/* Accessibility: visible keyboard focus indicators */
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Improve keyboard accessibility for buttons */
+button:focus-visible {
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
