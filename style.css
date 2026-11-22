@@ -498,3 +498,88 @@ select:focus {
   justify-content: space-between;
   margin-bottom: 12px;
 }
+
+
+/* ==========================================================
+   Responsive Improvements for Mobile Devices
+   ========================================================== */
+
+@media (max-width: 600px) {
+  body {
+    padding: 12px;
+  }
+
+  .container {
+    padding: 24px 18px;
+    border-radius: 12px;
+  }
+
+  .title {
+    font-size: 1.65rem;
+  }
+
+  .subtitle {
+    font-size: 0.88rem;
+  }
+
+  .header {
+    margin-bottom: 22px;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .result-area {
+    padding: 15px;
+  }
+
+  .top-nav {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .history-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .history-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .history-table {
+    min-width: 480px;
+  }
+
+  .nav-bar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .btn-check {
+    padding: 13px 18px;
+  }
+}
+
+/* Extra-small screens */
+@media (max-width: 360px) {
+  .container {
+    padding: 20px 14px;
+  }
+
+  .title {
+    font-size: 1.45rem;
+  }
+
+  .logo-container {
+    width: 60px;
+    height: 60px;
+  }
+
+  .logo-svg {
+    width: 34px;
+    height: 34px;
+  }
+}
